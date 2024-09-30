@@ -1,0 +1,69 @@
+org: emanuelejs23
+service: QUIZTOPIA-API
+frameworkVersion: "4"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ${env:AWS_REGION}  
+  iam:
+    role: ${env:IAM_ROLE_ARN}  
+  environment:
+    DYNAMODB_TABLE: ${env:DYNAMODB_TABLE} 
+
+functions:
+  createUser:
+    handler: handler.createUser
+    events:
+      - httpApi:
+          path: /users
+          method: post
+
+  loginUser:
+    handler: handler.loginUser
+    events:
+      - httpApi:
+          path: /login
+          method: post
+
+  createQuiz:
+    handler: handler.createQuiz
+    events:
+      - httpApi:
+          path: /quizzes
+          method: post
+
+  getQuizzes:
+    handler: handler.getQuizzes
+    events:
+      - httpApi:
+          path: /quizzes
+          method: get
+
+  getQuiz:
+    handler: handler.getQuiz
+    events:
+      - httpApi:
+          path: /quizzes/{quizId}
+          method: get
+
+  deleteQuiz:
+    handler: handler.deleteQuiz
+    events:
+      - httpApi:
+          path: /quizzes/{quizId}
+          method: delete
+
+  addQuestion:
+    handler: handler.addQuestion
+    events:
+      - httpApi:
+          path: /quizzes/{quizId}/questions
+          method: post
+
+  leaderboard:
+    handler: handler.leaderboard
+    events:
+      - httpApi:
+          path: /quizzes/{quizId}/leaderboard
+          method: get
