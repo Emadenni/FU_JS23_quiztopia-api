@@ -9,60 +9,91 @@ provider:
   iam:
     role: ${env:IAM_ROLE_ARN}  
   environment:
-    DYNAMODB_TABLE: ${env:DYNAMODB_TABLE} 
+    USERS_TABLE: ${env:USERS_TABLE}      
+    QUIZZES_TABLE: ${env:QUIZZES_TABLE}   
+
+resources: # Aggiungi questa sezione
+  Resources:
+    UsersTable: # Nome della risorsa
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${env:USERS_TABLE} # Nome della tabella
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S # Tipo: String
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH # Chiave primaria
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+
+    QuizzesTable: # Nome della risorsa
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${env:QUIZZES_TABLE} # Nome della tabella
+        AttributeDefinitions:
+          - AttributeName: quizId
+            AttributeType: S # Tipo: String
+        KeySchema:
+          - AttributeName: quizId
+            KeyType: HASH # Chiave primaria
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
 
 functions:
   createUser:
-    handler: handler.createUser
+    handler: functions/users/createUser/index.handler
     events:
       - httpApi:
           path: /users
           method: post
 
   loginUser:
-    handler: handler.loginUser
+    handler: functions/users/loginUser/index.handler
     events:
       - httpApi:
           path: /login
           method: post
 
   createQuiz:
-    handler: handler.createQuiz
+    handler: functions/quizzes/createQuiz/index.handler
     events:
       - httpApi:
           path: /quizzes
           method: post
 
   getQuizzes:
-    handler: handler.getQuizzes
+    handler: functions/quizzes/getQuizzes/index.handler
     events:
       - httpApi:
           path: /quizzes
           method: get
 
   getQuiz:
-    handler: handler.getQuiz
+    handler: functions/quizzes/getQuiz/index.handler
     events:
       - httpApi:
           path: /quizzes/{quizId}
           method: get
 
   deleteQuiz:
-    handler: handler.deleteQuiz
+    handler: functions/quizzes/deleteQuiz/index.handler
     events:
       - httpApi:
           path: /quizzes/{quizId}
           method: delete
 
   addQuestion:
-    handler: handler.addQuestion
+    handler: functions/quizzes/addQuestion/index.handler
     events:
       - httpApi:
           path: /quizzes/{quizId}/questions
           method: post
 
   leaderboard:
-    handler: handler.leaderboard
+    handler: functions/quizzes/leaderboard/index.handler
     events:
       - httpApi:
           path: /quizzes/{quizId}/leaderboard
