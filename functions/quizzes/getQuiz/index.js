@@ -3,10 +3,11 @@ const { db } = require("../../../services/db");
 const { sendResponse, sendError } = require("../../../responses/index");
 const middy = require("@middy/core");
 const { validateToken } = require("../../../middlewares/auth");
+const { errorHandler } = require("../../../middlewares/errorHandler");
 
 const getQuizHandler = async (event) => {
   try {
-    const quizId = event.pathParameters.quizId; // Modificato per estrarre quizId correttamente
+    const quizId = event.pathParameters.quizId; 
 
     if (!quizId) {
       return sendError(400, "Quiz ID is required");
@@ -30,4 +31,6 @@ const getQuizHandler = async (event) => {
   }
 };
 
-exports.handler = middy(getQuizHandler).use(validateToken);
+exports.handler = middy(getQuizHandler)
+  .use(validateToken)
+  .use(errorHandler);
