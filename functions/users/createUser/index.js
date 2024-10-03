@@ -4,23 +4,25 @@ const bcrypt = require("bcryptjs");
 const { sendResponse, sendError } = require("../../../responses/index");
 const middy = require("@middy/core");
 const { getUser } = require("../../../helpers/getUser");
+const { v4: uuidv4 } = require('uuid');
 
 const createUserHandler = async (event) => {
   const { username, password } = JSON.parse(event.body);
 
   try {
-    console.log("Checking for existing user...");
     const existingUser = await getUser(username);
-    console.log("Existing user:", existingUser);
-
-    if (existingUser) {
+      if (existingUser) {
       return sendError(400, "User already exists");
     } 
 
+    const userId = uuidv4();
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = {
+      userId,              
       username,
       hashedPassword,
+      createdAt: new Date().toISOString()
     };
 
     const result = await db.put({

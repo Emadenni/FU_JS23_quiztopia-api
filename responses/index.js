@@ -10,15 +10,14 @@ function sendResponse(statusCode, success, message) {
       }),
   };
 }
-  function sendError(statusCode, data) {
-    return {
-      statusCode: statusCode,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ data }),
-    };
-  }
-  
+const sendError = (statusCode, message) => {
+  return {
+    statusCode,
+    body: JSON.stringify({
+      error: message,
+    }),
+  };
+};
+
   module.exports = { sendResponse, sendError };
   
