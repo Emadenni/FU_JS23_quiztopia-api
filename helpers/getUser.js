@@ -2,13 +2,21 @@ const bcrypt = require('bcryptjs');
 const { db } = require('../services/db');
 
 async function getUser(username) {
-    const { Item } = await db.get({
-      TableName: process.env.USERS_TABLE,  
-      Key: {
-        username: username,
+  try {
+    const { Items } = await db.query({
+      TableName: process.env.USERS_TABLE,
+      IndexName: 'UsernameIndex', 
+      KeyConditionExpression: 'username = :username',
+      ExpressionAttributeValues: {
+        ':username': username,
       },
     });
-  
-    return Item;
+
+    return Items.length > 0 ? Items[0] : null; 
+  } catch (error) {
+    console.error("Error retrieving user: ", error);
+    throw new Error('Could not retrieve user'); 
   }
-  module.exports = { getUser };
+}
+
+module.exports = { getUser };

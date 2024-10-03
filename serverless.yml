@@ -5,42 +5,56 @@ frameworkVersion: "4"
 provider:
   name: aws
   runtime: nodejs20.x
-  region: ${env:AWS_REGION}  
+  region: ${env:AWS_REGION}
   iam:
-    role: ${env:IAM_ROLE_ARN}  
+    role: ${env:IAM_ROLE_ARN}
   environment:
-    USERS_TABLE: ${env:USERS_TABLE}      
-    QUIZZES_TABLE: ${env:QUIZZES_TABLE}   
+    USERS_TABLE: ${env:USERS_TABLE}
+    QUIZZES_TABLE: ${env:QUIZZES_TABLE}
 
-resources: # Aggiungi questa sezione
+resources:
   Resources:
-    UsersTable: # Nome della risorsa
+    UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${env:USERS_TABLE} # Nome della tabella
+        TableName: ${env:USERS_TABLE}
         AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
           - AttributeName: username
-            AttributeType: S # Tipo: String
+            AttributeType: S
         KeySchema:
-          - AttributeName: username
-            KeyType: HASH # Chiave primaria
-        ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+          - AttributeName: userId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: UsernameIndex
+            KeySchema:
+              - AttributeName: username
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
 
-    QuizzesTable: # Nome della risorsa
+    QuizzesTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${env:QUIZZES_TABLE} # Nome della tabella
+        TableName: ${env:QUIZZES_TABLE}
         AttributeDefinitions:
           - AttributeName: quizId
-            AttributeType: S # Tipo: String
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
         KeySchema:
           - AttributeName: quizId
-            KeyType: HASH # Chiave primaria
-        ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: UserIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
 
 functions:
   createUser:

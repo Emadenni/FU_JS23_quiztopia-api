@@ -27,7 +27,7 @@ const loginUserHandler = async (event) => {
       };
     }
 
-    const token = generateToken(user.username);
+    const token = generateToken(user.username, user.userId);
     return sendResponse(200, { success: true, token });
   } catch (error) {
     console.error("Error logging in:", error);
