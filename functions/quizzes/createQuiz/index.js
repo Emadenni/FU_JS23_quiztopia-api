@@ -3,7 +3,8 @@ const { db } = require("../../../services/db");
 const { sendResponse, sendError } = require("../../../responses/index");
 const middy = require("@middy/core");
 const { checkQuizByTitle } = require("../../../helpers/checkQuizName");
-const { validateToken } = require("../../../middlewares/auth");
+const { validateToken } = require("../../../middlewares/auth"); 
+const { errorHandler } = require("../../../middlewares/errorHandler"); 
 const { v4: uuidv4 } = require("uuid");
 
 const createQuizHandler = async (event) => {
@@ -67,4 +68,7 @@ const checkUserExists = async (userId) => {
   return result.Item ? true : false;
 };
 
-exports.handler = middy(createQuizHandler).use(validateToken);
+
+exports.handler = middy(createQuizHandler)
+  .use(validateToken)
+  .use(errorHandler);
