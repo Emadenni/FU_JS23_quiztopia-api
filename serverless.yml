@@ -119,7 +119,7 @@ functions:
     handler: functions/quizzes/addQuestion/index.handler
     events:
       - httpApi:
-          path: /quizzes/{quizId}/questions
+          path: /quizzes/questions/{quizId}
           method: post
 
   leaderboard:
@@ -133,5 +133,5 @@ functions:
     handler: functions/scores/registerPoints/index.handler
     events:
       - httpApi:
-          path: /quizzes/{quizId}/questions/{questionId}
+          path: /quizzes/score/{quizId}/{questionId}
           method: put

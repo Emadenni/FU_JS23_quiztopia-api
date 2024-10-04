@@ -11,6 +11,14 @@ const registerPoints = async (event) => {
   const questionId = event.pathParameters.questionId;
   const userId = event.userId;
 
+  if (!quizId || !questionId) {
+    throw {
+        message: "Missing quizId or questionId in the path parameters",
+        statusCode: 400
+    };
+}
+
+
   try {
     const params = {
       TableName: process.env.QUIZZES_TABLE,

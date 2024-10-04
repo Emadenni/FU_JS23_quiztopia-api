@@ -3,6 +3,7 @@ const { db } = require("../../../services/db");
 const { sendResponse, sendError } = require("../../../responses/index");
 const middy = require("@middy/core");
 const { checkQuizByTitle } = require("../../../helpers/checkQuizName");
+const { validateBody } = require("../../../helpers/validateBody");
 const { validateToken } = require("../../../middlewares/auth"); 
 const { errorHandler } = require("../../../middlewares/errorHandler"); 
 const { v4: uuidv4 } = require("uuid");
@@ -10,6 +11,13 @@ const { v4: uuidv4 } = require("uuid");
 const createQuizHandler = async (event) => {
   try {
     const { title } = JSON.parse(event.body);
+
+    const requiredFields = ["title"];
+    const bodyValidation = validateBody({ title }, requiredFields);
+
+    if (!bodyValidation.valid) {
+      return sendError(400, bodyValidation.message);
+    }
     const extractedUserId = event.userId;
 
     if (!extractedUserId) {
