@@ -21,7 +21,7 @@ const getQuizHandler = async (event) => {
     const result = await db.get(params);
 
     if (!result.Item) {
-      return sendError(404, "Quiz not found");
+      return sendError(404, "Quiz not found or missing parameters");
     }
 
     return sendResponse(200, { success: true, quiz: result.Item });
