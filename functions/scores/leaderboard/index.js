@@ -1,5 +1,9 @@
-const db = require("../../../services/db");
+const { db } = require("../../../services/db");
 const { sendResponse, sendError } = require("../../../responses/index");
+const { validateToken } = require("../../../middlewares/auth");
+const { errorHandler } = require("../../../middlewares/errorHandler");
+const middy = require("@middy/core");
+require("dotenv").config();
 
 const getTopScoresByQuiz = async (event) => {
   try {
@@ -10,20 +14,33 @@ const getTopScoresByQuiz = async (event) => {
     const scores = await db.scan(params);
     const topScores = {};
 
-    
-    scores.Items.forEach(score => {
+    scores.Items.forEach((score) => {
       const quizId = score.quizId;
 
       if (!topScores[quizId]) {
         topScores[quizId] = {
           quizId,
-          topScore: score.totalScore,
-          playerId: score.userId,
+          topScores: [{ playerId: score.userId, totalScore: score.totalScore }],
         };
-      } else if (score.totalScore > topScores[quizId].topScore) {
-        topScores[quizId].topScore = score.totalScore;
-        topScores[quizId].playerId = score.userId;
+      } else {
+        const existingTopScore = topScores[quizId].topScores.find((item) => item.playerId === score.userId);
+
+        if (existingTopScore) {
+       
+          if (score.totalScore > existingTopScore.totalScore) {
+            existingTopScore.totalScore = score.totalScore;
+          }
+        } else {
+         
+          topScores[quizId].topScores.push({ playerId: score.userId, totalScore: score.totalScore });
+        }
       }
+    });
+
+    
+    Object.keys(topScores).forEach((quizId) => {
+      topScores[quizId].topScores.sort((a, b) => b.totalScore - a.totalScore);
+      topScores[quizId].topScores = topScores[quizId].topScores.slice(0, 3); 
     });
 
     return sendResponse(200, Object.values(topScores));
@@ -33,4 +50,4 @@ const getTopScoresByQuiz = async (event) => {
   }
 };
 
-exports.handler = getTopScoresByQuiz;
+exports.handler = middy(getTopScoresByQuiz).use(validateToken).use(errorHandler);
